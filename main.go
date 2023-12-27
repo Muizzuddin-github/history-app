@@ -4,6 +4,7 @@ import (
 	"context"
 	"crud/src"
 	"crud/src/db"
+	"os"
 )
 
 
@@ -14,6 +15,11 @@ func main(){
 	db.CreateConn(ctx)
 	defer db.CloseDB(ctx)
 
+	port := os.Getenv("PORT")
+	if port == ""{
+		port = "3000"
+	}
+
 	server := src.Application()
-	server.Listen("0.0.0.0:8080")
+	server.Listen(":" + port)
 }

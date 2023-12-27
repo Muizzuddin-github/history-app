@@ -10,5 +10,5 @@ type Err struct {
 
 type Data struct {
 	Message string `json:"message"`
-	Data    any    `json:"Data"`
+	Data    any    `json:"data"`
 }

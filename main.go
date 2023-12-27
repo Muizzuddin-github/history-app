@@ -1,21 +1,19 @@
-package api
+package main
 
 import (
 	"context"
 	"crud/src"
 	"crud/src/db"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 
 
-func Handler() *fiber.App{
+func main(){
 
 	ctx := context.Background()
 	db.CreateConn(ctx)
 	defer db.CloseDB(ctx)
 
 	server := src.Application()
-	return server
+	server.Listen("0.0.0.0:8080")
 }

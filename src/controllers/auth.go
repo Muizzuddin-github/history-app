@@ -93,8 +93,8 @@ var Login fiber.Handler = func(c *fiber.Ctx) error {
 		Name: "token",
 		Value: token,
 		MaxAge: 24 * 60 * 60,
-		HTTPOnly: true,
-		Secure: true,
+		HTTPOnly: false,
+		Secure: false,
 		SameSite: "none",
 	})
 	c.Status(fiber.StatusOK)

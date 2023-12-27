@@ -37,7 +37,7 @@ func Application() *fiber.App {
 	})
 
 	app.Mount("/",routers.Auth())
-	app.Mount("/",routers.Users())
+	// app.Mount("/",routers.Users())
 	app.Mount("/",routers.Category())
 	app.Mount("/",routers.Info())
 

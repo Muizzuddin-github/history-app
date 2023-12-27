@@ -10,7 +10,7 @@ import (
 func Auth() *fiber.App{
 
 	auth := fiber.New()
-	auth.Post("/register",controllers.Register)
+	// auth.Post("/register",controllers.Register)
 	auth.Post("/login",controllers.Login)
 	auth.Post("/logout",controllers.Logout)
 	

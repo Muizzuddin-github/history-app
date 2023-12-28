@@ -12,7 +12,7 @@ import (
 )
 
 type categoryInterface interface {
-	AddCategory(ctx context.Context, data *requestbody.AddCategory) error
+	AddCategory(ctx context.Context, data *requestbody.AddCategory) (string,error)
 	GetCategory(ctx context.Context) ([]entity.Category, error)
 	UpdateCategory(ctx context.Context, data *requestbody.UpdateCategory, id string) (*mongo.UpdateResult, error)
 	DeleteCategory(ctx context.Context, id string) (*mongo.DeleteResult, error)
@@ -23,13 +23,19 @@ type categoryRepo struct{
 	Col *mongo.Collection
 }
 
-func (category *categoryRepo) AddCategory(ctx context.Context, data *requestbody.AddCategory) error{
+func (category *categoryRepo) AddCategory(ctx context.Context, data *requestbody.AddCategory) (string,error){
 
-	_, err := category.Col.InsertOne(ctx,data)
+	result, err := category.Col.InsertOne(ctx,data)
 	if err != nil{
-		return errors.New(err.Error())
+		return "", errors.New(err.Error())
 	}
-	return nil
+
+	insertId, ok := result.InsertedID.(primitive.ObjectID)
+	if !ok{
+		return "", errors.New(err.Error())
+	}
+
+	return insertId.Hex(),nil
 }
 
 

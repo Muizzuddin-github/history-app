@@ -31,7 +31,7 @@ var AddCategory fiber.Handler = func(c *fiber.Ctx) error {
 
 	ctx := context.Background()
 	categoryCol := repository.NewCategoryRepo(db.GetCollection("category"))
-	err := categoryCol.AddCategory(ctx,&body)
+	id, err := categoryCol.AddCategory(ctx,&body)
 
 	if err != nil{
 		c.Status(fiber.StatusInternalServerError)
@@ -41,8 +41,9 @@ var AddCategory fiber.Handler = func(c *fiber.Ctx) error {
 	}
 
 	c.Status(fiber.StatusCreated)
-	return c.JSON(responsebody.Msg{
+	return c.JSON(responsebody.InsertDocument{
 		Message: "Category created",
+		InsertedID: id,
 	})
 }
 

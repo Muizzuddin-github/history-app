@@ -60,7 +60,7 @@ var AddInfo fiber.Handler = func(c *fiber.Ctx) error {
 
 	ctx := context.Background()
 	categoryCol := repository.NewInfoRepo(db.GetCollection("category"))
-	result, err := categoryCol.AddInfo(ctx,&body,c.Params("idCategory"))
+	result,id, err := categoryCol.AddInfo(ctx,&body,c.Params("idCategory"))
 	if err != nil{
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(responsebody.Err{
@@ -77,8 +77,9 @@ var AddInfo fiber.Handler = func(c *fiber.Ctx) error {
 
 
 	c.Status(fiber.StatusCreated)
-	return c.JSON(responsebody.Msg{
+	return c.JSON(responsebody.InsertDocument{
 		Message: "Info created success",
+		InsertedID: id,
 	})
 }
 

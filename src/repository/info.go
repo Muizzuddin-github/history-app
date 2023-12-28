@@ -12,7 +12,7 @@ import (
 )
 
 type infoInterface interface {
-	AddInfo(ctx context.Context, data *requestbody.Info, id string) (*mongo.UpdateResult, error)
+	AddInfo(ctx context.Context, data *requestbody.Info, id string) (*mongo.UpdateResult, string, error)
 	DeleteInfo(ctx context.Context, idCategory string, idInfo string) (*mongo.UpdateResult, error)
 	UpdateNoImage(ctx context.Context, idCategory string, idInfo string, data *requestbody.InfoUpdateNoImage) (*mongo.UpdateResult, error)
 	UpdateWithImage(ctx context.Context, idCategory string, idInfo string, data *requestbody.InfoUpdateWithImage) (*mongo.UpdateResult, error)
@@ -23,11 +23,11 @@ type infoRepo struct{
 }
 
 
-func (info *infoRepo) AddInfo(ctx context.Context, data *requestbody.Info, id string) (*mongo.UpdateResult,error){
+func (info *infoRepo) AddInfo(ctx context.Context, data *requestbody.Info, id string) (*mongo.UpdateResult,string,error){
 
 	objId, err := primitive.ObjectIDFromHex(id)
 	if err != nil{
-		return nil, errors.New(err.Error())
+		return nil, "", errors.New(err.Error())
 	}
 
 
@@ -37,10 +37,11 @@ func (info *infoRepo) AddInfo(ctx context.Context, data *requestbody.Info, id st
 
 	result,err := info.Col.UpdateOne(ctx,filter,addNestedDoc)
 	if err != nil{
-		return nil, errors.New(err.Error())
+		return nil, "", errors.New(err.Error())
 	}
 
-	return result,nil
+
+	return result, data.Id.Hex(), nil
 }
 
 func(info *infoRepo) DeleteInfo(ctx context.Context, idCategory string, idInfo string) (*mongo.UpdateResult, error){

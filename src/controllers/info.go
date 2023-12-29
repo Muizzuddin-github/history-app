@@ -9,54 +9,63 @@ import (
 	"crud/src/utility"
 	"path/filepath"
 	"slices"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 var AddInfo fiber.Handler = func(c *fiber.Ctx) error {
-
 	body := requestbody.Info{}
 	c.BodyParser(&body)
-
-	file, err := c.FormFile("image")
-	if err != nil{
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(responsebody.Err{
-			Errors : []string{err.Error()},
-		})
-	}
-
 	body.Created_at = utility.TimeNow()
 
+	// contentType := c.Get("Content-Type")
 
-	ext := filepath.Ext(file.Filename)
-	accExt := []string{".jpg",".png",".jpeg"}
+	contentType := strings.Split(string(c.Request().Header.ContentType()),";")[0]
 
-	if !slices.Contains(accExt,ext){
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(responsebody.Err{
-			Errors: []string{"ext file not allowed"},
-		})
+	if contentType == "multipart/form-data"{
+		file, err := c.FormFile("image")
+		if err != nil{
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(responsebody.Err{
+				Errors : []string{err.Error()},
+			})
+		}
+	
+	
+	
+		ext := filepath.Ext(file.Filename)
+		accExt := []string{".jpg",".png",".jpeg"}
+	
+		if !slices.Contains(accExt,ext){
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(responsebody.Err{
+				Errors: []string{"ext file not allowed"},
+			})
+		}
+	
+		imageByte, err := utility.ReadByte(file)
+		if err != nil{
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(responsebody.Err{
+				Errors : []string{err.Error()},
+			})
+		}
+	
+		resJson, err := utility.UploadImageApi(imageByte,file.Filename)
+		if err != nil{
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(responsebody.Err{
+				Errors: []string{err.Error()},
+			})
+		}
+	
+		url := resJson.Image.File.Resource.Chain.Image
+		body.ImageUrl = url
 	}
 
-	imageByte, err := utility.ReadByte(file)
-	if err != nil{
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(responsebody.Err{
-			Errors : []string{err.Error()},
-		})
-	}
 
-	resJson, err := utility.UploadImageApi(imageByte,file.Filename)
-	if err != nil{
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(responsebody.Err{
-			Errors: []string{err.Error()},
-		})
-	}
 
-	url := resJson.Image.File.Resource.Chain.Image
-	body.ImageUrl = url
 
 	ctx := context.Background()
 	categoryCol := repository.NewInfoRepo(db.GetCollection("category"))

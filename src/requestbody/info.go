@@ -4,9 +4,9 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Info struct {
 	Id          primitive.ObjectID `bson:"_id" json:"_id"`
-	Title       string             `bson:"title" form:"title" validate:"required"`
-	Description string             `bson:"description" form:"description" validate:"required"`
-	ImageUrl    string             `bson:"imageUrl"`
+	Title       string             `bson:"title" form:"title" validate:"required" json:"title"`
+	Description string             `bson:"description" form:"description" validate:"required" json:"description"`
+	ImageUrl    string             `bson:"imageUrl" json:"imageUrl"`
 	Created_at  string             `bson:"created_at"`
 }
 

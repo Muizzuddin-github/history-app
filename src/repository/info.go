@@ -4,7 +4,6 @@ import (
 	"context"
 	"crud/src/requestbody"
 	"errors"
-	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -64,10 +63,6 @@ func(info *infoRepo) DeleteInfo(ctx context.Context, idCategory string, idInfo s
 	if err != nil{
 		return nil, errors.New(err.Error())
 	}
-
-	fmt.Println(result.MatchedCount)
-	fmt.Println(result.ModifiedCount)
-
 
 	return result, nil
 }

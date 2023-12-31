@@ -92,7 +92,7 @@ var DeleteInfo fiber.Handler = func(c *fiber.Ctx) error {
 		})
 	}
 
-	if result.MatchedCount == 0 {
+	if result.MatchedCount == 0 || result.ModifiedCount == 0 {
 		c.Status(fiber.StatusNotFound)
 		return c.JSON(responsebody.Err{
 			Errors: []string{err.Error()},

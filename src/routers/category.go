@@ -11,8 +11,8 @@ func Category() *fiber.App{
 
 	category := fiber.New()
 
-	category.Get("/category",middlewares.Authorization, controllers.GetAllCategory)
-	category.Post("/category",middlewares.Authorization,controllers.AddCategory)
+	category.Get("/category", controllers.GetAllCategory)
+	category.Post("/category",controllers.AddCategory)
 	category.Put("/category/:id",middlewares.Authorization,controllers.UpdateCategory)
 	category.Delete("/category/:id",middlewares.Authorization,controllers.DeleteCategory)
 

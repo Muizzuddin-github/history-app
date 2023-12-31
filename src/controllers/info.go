@@ -9,7 +9,6 @@ import (
 	"crud/src/utility"
 	"path/filepath"
 	"slices"
-	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -19,31 +18,18 @@ var AddInfo fiber.Handler = func(c *fiber.Ctx) error {
 	c.BodyParser(&body)
 	body.Created_at = utility.TimeNow()
 
-	// contentType := c.Get("Content-Type")
-
-	contentType := strings.Split(string(c.Request().Header.ContentType()),";")[0]
-
-	if contentType == "multipart/form-data"{
-		file, err := c.FormFile("image")
-		if err != nil{
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(responsebody.Err{
-				Errors : []string{err.Error()},
-			})
-		}
-	
-	
-	
+	file, err := c.FormFile("image")
+	if err == nil{
 		ext := filepath.Ext(file.Filename)
 		accExt := []string{".jpg",".png",".jpeg"}
-	
+
 		if !slices.Contains(accExt,ext){
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(responsebody.Err{
 				Errors: []string{"ext file not allowed"},
 			})
 		}
-	
+
 		imageByte, err := utility.ReadByte(file)
 		if err != nil{
 			c.Status(fiber.StatusBadRequest)
@@ -51,7 +37,7 @@ var AddInfo fiber.Handler = func(c *fiber.Ctx) error {
 				Errors : []string{err.Error()},
 			})
 		}
-	
+
 		resJson, err := utility.UploadImageApi(imageByte,file.Filename)
 		if err != nil{
 			c.Status(fiber.StatusBadRequest)
@@ -59,13 +45,11 @@ var AddInfo fiber.Handler = func(c *fiber.Ctx) error {
 				Errors: []string{err.Error()},
 			})
 		}
-	
+
 		url := resJson.Image.File.Resource.Chain.Image
-		body.ImageUrl = url
+		body.Image = url
+
 	}
-
-
-
 
 	ctx := context.Background()
 	categoryCol := repository.NewInfoRepo(db.GetCollection("category"))

@@ -30,10 +30,17 @@ func (info *infoRepo) AddInfo(ctx context.Context, data *requestbody.Info, id st
 		return nil, "", errors.New(err.Error())
 	}
 
+	genObjId := primitive.ObjectID.Hex(primitive.NewObjectID())
 
-	data.Id = primitive.NewObjectID()
 	filter := bson.M{"_id": bson.M{"$eq": objId}}
-	addNestedDoc := bson.M{"$push" : bson.M{"info" : data}}
+	addNestedDoc := bson.M{"$push" : bson.M{"info" : bson.M{
+		"_id" : genObjId,
+		"title" : data.Title,
+		"description" : data.Description,
+		"imageUrl" : data.Image,
+		"created_at" : data.Created_at,
+
+	}}}
 
 	result,err := info.Col.UpdateOne(ctx,filter,addNestedDoc)
 	if err != nil{
@@ -41,7 +48,7 @@ func (info *infoRepo) AddInfo(ctx context.Context, data *requestbody.Info, id st
 	}
 
 
-	return result, data.Id.Hex(), nil
+	return result, id, nil
 }
 
 func(info *infoRepo) DeleteInfo(ctx context.Context, idCategory string, idInfo string) (*mongo.UpdateResult, error){

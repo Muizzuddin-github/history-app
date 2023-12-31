@@ -4,6 +4,7 @@ import (
 	"context"
 	"crud/src/requestbody"
 	"errors"
+	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -57,17 +58,15 @@ func(info *infoRepo) DeleteInfo(ctx context.Context, idCategory string, idInfo s
 		return nil, errors.New(err.Error())
 	}
 
-	objIdInfo, err := primitive.ObjectIDFromHex(idInfo)
-	if err != nil{
-		return nil, errors.New(err.Error())
-	}
-
 	filter := bson.M{"_id" : bson.M{"$eq" : objIdCategory}}
-	update := bson.M{"$pull" : bson.M{"info" : bson.M{"_id" : objIdInfo}}}
+	update := bson.M{"$pull" : bson.M{"info" : bson.M{"_id" : bson.M{"$eq" : idInfo}}}}
 	result, err := info.Col.UpdateOne(ctx,filter,update)
 	if err != nil{
 		return nil, errors.New(err.Error())
 	}
+
+	fmt.Println(result.MatchedCount)
+	fmt.Println(result.ModifiedCount)
 
 
 	return result, nil

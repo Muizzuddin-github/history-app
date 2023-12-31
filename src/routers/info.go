@@ -12,7 +12,9 @@ func Info() *fiber.App {
 
 	info.Post("/category/:idCategory",middlewares.Authorization,controllers.AddInfo)
 	info.Delete("/category/:idCategory/info/:idInfo",middlewares.Authorization,controllers.DeleteInfo)
-	info.Put("/category/:idCategory/info/:idInfo",middlewares.Authorization,controllers.UpdateInfo)
+	info.Put("/category/:idCategory/info/:idInfo",middlewares.Authorization,controllers.UpdateInfoNoImage)
+	info.Put("/category/:idCategory/info-image/:idInfo",middlewares.Authorization,controllers.UpdateInfoImage)
+
 
 	return info
 }

@@ -107,21 +107,29 @@ var DeleteInfo fiber.Handler = func(c *fiber.Ctx) error {
 }
 
 
-var UpdateInfo fiber.Handler = func(c *fiber.Ctx) error {
+var UpdateInfoImage fiber.Handler = func(c *fiber.Ctx) error {
 
 
 	idCategory := c.Params("idCategory")
 	idInfo := c.Params("idInfo")
 
+	body := requestbody.InfoImage{}
+	c.BodyParser(&body)
 
 	file, err := c.FormFile("image")
-	if err != nil{
+	if err == nil{
 
-		body := requestbody.InfoUpdateNoImage{}
-		c.BodyParser(&body)
-		ctx := context.Background()
-		categoryCol := repository.NewInfoRepo(db.GetCollection("category"))
-		result, err := categoryCol.UpdateNoImage(ctx, idCategory,idInfo,&body)
+		ext := filepath.Ext(file.Filename)
+		extAcc := []string{".jpg",".jpeg","png"}
+		if !slices.Contains(extAcc,ext){
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(responsebody.Err{
+				Errors: []string{"ext file not allowed"},
+			})
+		}
+
+
+		imageByte, err := utility.ReadByte(file)
 		if err != nil{
 			c.Status(fiber.StatusInternalServerError)
 			return c.JSON(responsebody.Err{
@@ -129,62 +137,21 @@ var UpdateInfo fiber.Handler = func(c *fiber.Ctx) error {
 			})
 		}
 
-		if result.MatchedCount == 0{
-			c.Status(fiber.StatusNotFound)
+		resJson, err := utility.UploadImageApi(imageByte,file.Filename)
+		if err != nil{
+			c.Status(fiber.StatusBadRequest)
 			return c.JSON(responsebody.Err{
-				Errors: []string{"not found"},
+				Errors: []string{err.Error()},
 			})
 		}
 
-		c.Status(fiber.StatusOK)
-		return c.JSON(responsebody.Msg{
-			Message: "update info success",
-		})
+		body.Image = resJson.Image.File.Resource.Chain.Image
 	}
 
-	body := requestbody.InfoUpdateWithImage{}
-	c.BodyParser(&body)
-
-	file, err = c.FormFile("image")
-	if err != nil{
-		c.Status(fiber.StatusInternalServerError)
-		return c.JSON(responsebody.Err{
-			Errors: []string{err.Error()},
-		})
-	}
-
-	ext := filepath.Ext(file.Filename)
-	extAcc := []string{".jpg",".jpeg","png"}
-	if !slices.Contains(extAcc,ext){
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(responsebody.Err{
-			Errors: []string{"ext file not allowed"},
-		})
-	}
-
-
-	imageByte, err := utility.ReadByte(file)
-	if err != nil{
-		c.Status(fiber.StatusInternalServerError)
-		return c.JSON(responsebody.Err{
-			Errors: []string{err.Error()},
-		})
-	}
-
-	resJson, err := utility.UploadImageApi(imageByte,file.Filename)
-	if err != nil{
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(responsebody.Err{
-			Errors: []string{err.Error()},
-		})
-	}
-
-	url := resJson.Image.File.Resource.Chain.Image
-	body.ImageUrl = url
 
 	ctx := context.Background()
 	categoryCol := repository.NewInfoRepo(db.GetCollection("category"))
-	result, err := categoryCol.UpdateWithImage(ctx,idCategory,idInfo,&body)
+	result, err := categoryCol.UpdateWithImage(ctx,idCategory,idInfo,body.Image)
 	if err != nil{
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(responsebody.Err{
@@ -203,4 +170,38 @@ var UpdateInfo fiber.Handler = func(c *fiber.Ctx) error {
 	return c.JSON(responsebody.Msg{
 		Message: "update info success",
 	})
+
+}
+
+
+
+var UpdateInfoNoImage fiber.Handler = func(c *fiber.Ctx) error {
+	idCategory := c.Params("idCategory")
+	idInfo := c.Params("idInfo")
+
+	body := requestbody.InfoUpdateNoImage{}
+	c.BodyParser(&body)
+
+	ctx := context.Background()
+	categoryCol := repository.NewInfoRepo(db.GetCollection("category"))
+	result, err := categoryCol.UpdateNoImage(ctx,idCategory,idInfo,&body)
+	if err != nil{
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(responsebody.Err{
+			Errors: []string{err.Error()},
+		})
+	}
+
+	if result.MatchedCount == 0 {
+		c.Status(fiber.StatusNotFound)
+		return c.JSON(responsebody.Err{
+			Errors: []string{"not found"},
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(responsebody.Msg{
+		Message: "update info success",
+	})
+
 }

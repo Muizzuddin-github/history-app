@@ -8,12 +8,10 @@ type Info struct {
 }
 
 type InfoUpdateNoImage struct {
-	Title       string `bson:"title" form:"title" validate:"required"`
-	Description string `bson:"description" form:"description" validate:"required"`
+	Title       string `bson:"title" json:"title" validate:"required"`
+	Description string `bson:"description" json:"description" validate:"required"`
 }
 
-type InfoUpdateWithImage struct {
-	Title       string `bson:"title" form:"title" validate:"required"`
-	Description string `bson:"description" form:"description" validate:"required"`
-	ImageUrl    string `bson:"imageUrl"`
+type InfoImage struct {
+	Image string `form:"image"`
 }

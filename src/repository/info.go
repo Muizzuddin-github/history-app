@@ -15,7 +15,7 @@ type infoInterface interface {
 	AddInfo(ctx context.Context, data *requestbody.Info, id string) (*mongo.UpdateResult, string, error)
 	DeleteInfo(ctx context.Context, idCategory string, idInfo string) (*mongo.UpdateResult, error)
 	UpdateNoImage(ctx context.Context, idCategory string, idInfo string, data *requestbody.InfoUpdateNoImage) (*mongo.UpdateResult, error)
-	UpdateWithImage(ctx context.Context, idCategory string, idInfo string, data *requestbody.InfoUpdateWithImage) (*mongo.UpdateResult, error)
+	UpdateWithImage(ctx context.Context, idCategory string, idInfo string, url string) (*mongo.UpdateResult, error)
 }
 
 type infoRepo struct{
@@ -73,10 +73,6 @@ func(info *infoRepo) UpdateNoImage(ctx context.Context, idCategory string, idInf
 		return nil, errors.New(err.Error())
 	}
 
-	objIdInfo, err := primitive.ObjectIDFromHex(idInfo)
-	if err != nil{
-		return nil, errors.New(err.Error())
-	}
 
 	filter := bson.M{"_id" : objIdCategory}
 	update := bson.M{"$set" : bson.M{
@@ -87,7 +83,9 @@ func(info *infoRepo) UpdateNoImage(ctx context.Context, idCategory string, idInf
 	arrayFilters := options.ArrayFilters{
 		Filters: []interface{}{
 			bson.M{
-				"items._id" : objIdInfo,
+				"items._id" : bson.M{
+					"$eq" : idInfo,
+				},
 			},
 		},
 	}
@@ -103,28 +101,24 @@ func(info *infoRepo) UpdateNoImage(ctx context.Context, idCategory string, idInf
 
 }
 
-func(info *infoRepo) UpdateWithImage(ctx context.Context, idCategory string, idInfo string,data *requestbody.InfoUpdateWithImage) (*mongo.UpdateResult, error){
+func(info *infoRepo) UpdateWithImage(ctx context.Context, idCategory string, idInfo string,url string) (*mongo.UpdateResult, error){
 	objIdCategory, err := primitive.ObjectIDFromHex(idCategory)
 	if err != nil{
 		return nil, errors.New(err.Error())
 	}
 
-	objIdInfo, err := primitive.ObjectIDFromHex(idInfo)
-	if err != nil{
-		return nil, errors.New(err.Error())
-	}
 
 	filter := bson.M{"_id" : objIdCategory}
 	update := bson.M{"$set" : bson.M{
-		"info.$[items].title" : data.Title,
-		"info.$[items].description" : data.Description,
-		"info.$[items].imageUrl" : data.ImageUrl,
+		"info.$[items].imageUrl" : url,
 		},
 	}
 	arrayFilters := options.ArrayFilters{
 		Filters: []interface{}{
 			bson.M{
-				"items._id" : objIdInfo,
+				"items._id" : bson.M{
+					"$eq" : idInfo,
+				},
 			},
 		},
 	}

@@ -95,7 +95,7 @@ var Login fiber.Handler = func(c *fiber.Ctx) error {
 		MaxAge: 24 * 60 * 60,
 		HTTPOnly: false,
 		Secure: false,
-		SameSite: "none",
+		SameSite: "lax",
 	})
 	c.Status(fiber.StatusOK)
 	return c.JSON(responsebody.Msg{

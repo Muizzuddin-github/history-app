@@ -40,7 +40,22 @@ func (category *categoryRepo) AddCategory(ctx context.Context, data *requestbody
 
 
 func (category *categoryRepo) GetCategory(ctx context.Context) ([]entity.Category, error){
-	cur, err := category.Col.Find(ctx,bson.D{})
+
+
+	pipeline := []bson.M{
+		{"$sort": bson.M{"created_at": -1}},
+		{"$unwind": "$info"},
+		{"$sort": bson.M{"info.created_at": -1}},
+		{
+			"$group" : bson.M{
+				"_id" : "$_id",
+				"category" : bson.M{"$first": "$category"},
+				"created_at" : bson.M{"$first": "$created_at"},
+				"info" : bson.M{"$push" : "$info"},
+			},
+		},
+	}
+	cur, err := category.Col.Aggregate(ctx,pipeline)
 	if err != nil{
 		return nil, errors.New(err.Error())
 	}

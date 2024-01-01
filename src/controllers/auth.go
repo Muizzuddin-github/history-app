@@ -104,7 +104,15 @@ var Login fiber.Handler = func(c *fiber.Ctx) error {
 }
 
 var Logout fiber.Handler = func(c *fiber.Ctx) error {
-	c.ClearCookie("token")
+	c.Cookie(&fiber.Cookie{
+		Name: "token",
+		Value: "",
+		MaxAge: -1,
+		HTTPOnly: true,
+		Secure: true,
+		SameSite: "none",
+		Expires: time.Unix(0, 0),
+	})
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(responsebody.Msg{

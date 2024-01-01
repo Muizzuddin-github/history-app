@@ -118,3 +118,11 @@ var Logout fiber.Handler = func(c *fiber.Ctx) error {
 		Message: "logout success",
 	})
 }
+
+
+var IsLogin fiber.Handler = func(c *fiber.Ctx) error {
+
+	return c.JSON(responsebody.Msg{
+		Message: "user is login",
+	})
+}

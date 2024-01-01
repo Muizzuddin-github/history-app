@@ -23,7 +23,7 @@ func Application() *fiber.App {
 
 	app.Use(cors.New(cors.Config{
 		AllowCredentials: true,
-		AllowOrigins: "http://localhost:5173",
+		AllowOrigins: "http://localhost:5173, https://frontend-history-app.vercel.app",
 		AllowMethods: "GET,POST,HEAD,PUT,DELETE,PATCH",
 	}))
 	

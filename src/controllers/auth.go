@@ -111,7 +111,6 @@ var Logout fiber.Handler = func(c *fiber.Ctx) error {
 		HTTPOnly: true,
 		Secure: true,
 		SameSite: "none",
-		Expires: time.Unix(0, 0),
 	})
 
 	c.Status(fiber.StatusOK)
